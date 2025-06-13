@@ -1,269 +1,153 @@
-![image](https://github.com/user-attachments/assets/3ec0f633-1414-4086-a8f4-42649e27003f)
----
-# POS Padi Django Backend API
+## 1. Team Workflow: Branches and Pull Requests
+We follow a simplified "GitHub Flow" to manage our code changes.
 
-## Project Overview
+**1.1. The `main` Branch**
+The `main` branch represents the stable, production-ready code.
 
-**POS-Padi – POS Transaction Management System**
+Direct pushes to main are strictly forbidden. All changes must go through a Pull Request.
 
-POS-Padi is a Django-based POS transaction management app that leverages the Django REST Framework, built-in authentication, and JWT for secure API authentication. It provides a structured API with endpoints across multiple apps:
+Always keep your local main branch updated.
 
-- **Users** – User registration, login, and JWT-based authentication.
-- **Companies** – Company creation, Agent registration and performance evaluation.
-- **Agents** – Agent onboarding and account management.
-- **Customers** – Customer tracking and loyalty rewards system.
+**1.2. Feature Branching**
+For every new task (feature, bug fix, improvement), you must create a new branch.
 
-POS-Padi is a robust API to help POS agents and business owners efficiently manage their operations. The platform addresses issues such as fraud, transaction disputes, and cash shortages by offering real-time insights, financial tools, and smart alerts. This API contains User Authentication, Company Sign up, Agent Onboarding and Customer Registration
+- **Start from `main`:**
+Always ensure your local `main` is up-to-date before creating a new branch.
 
-## Live Link
-
-[API Live Demo](https://pos-padi-django-backend.onrender.com/)
-
-## Documentation Link
-
-Postman API Documentation [here](https://documenter.getpostman.com/view/43614350/2sB2ixjZkQ).
-
----
-
-## Installation Instructions
-
-### Prerequisites
-
-Ensure the following tools are installed:
-
-- Python (>= 3.9 recommended)
-- pip (Python package manager)
-- Git
-- Virtual environment tool (e.g., `venv` or `virtualenv`)
-- MySQL
-
-### How to Run the API Locally
-
-1. **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/InternPulse/pos-padi-django-backend.git
-    cd pos-padi-django-backend
-    ```
-
-2. **Set up a virtual environment:**
-
-   **Windows:**
-
-    ```bash
-
-    python -m venv .venv
-    .\.venv\Scripts\activate
-    ```
-
-   **macOS/Linux:**
-
-    ```bash
-    
-    python -m venv .venv
-    source .venv/bin/activate
-    ```
-
-3. **Install dependencies:**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4. **Set up the database:**
-
-    ```bash
-    python manage.py migrate
-    ```
-
-5. **Create a superuser**
-
-    ```bash
-    python manage.py createsuperuser
-    ```
-
-6. **Start the server:**
-
-    ```bash
-    python manage.py runserver
-    ```
-
-   The API will be available at `http://127.0.0.1:8000`.
-
----
-
-## Features
-
-- **Advanced Analytics:** Provides insights into key performance metrics.
-- **REST API:** Enables querying and managing analytics data.
-- **Filters:** Supports filtering by dates, products, and profitability.
-- **Data Aggregation:** Converts raw data into actionable insights.
-- **Reporting:** Offers downloadable and visual reports.
-
----
-
-## Usage
-
-- Access the API locally at `http://127.0.0.1:8000/`.
-- Test endpoints using tools like Postman, cURL, or other API testing utilities.
-- Refer to the [API Documentation](https://documenter.getpostman.com/view/43614350/2sB2ixjZkQ) for detailed instructions.
-
----
-
-## API Endpoints
-
-**Base URL:** `http://127.0.0.1:8000/api/v1/`
-
-| Endpoint                                    | Method | Description                           |
-|---------------------------------------------|--------|---------------------------------------|
-| `/users/register/`                          | POST   | Register an owner.                    |
-| `/users/verify/`                            | POST   | Owner email verification.             |
-| `/companies/`                               | POST   | Register a company.                   |
-| `/agents`                                   | POST   | Sign up an agent.                     |
-| `/companies/dashboard/?start_date=<string>&end_date=<string>&agent_id=<string>/`| GET    | Fetch a aggregation relevant metrics. |
-| `/users/summary`                            | GET    | Fetch a summary of all data linked to a user.|
-
-For a comprehensive list, refer to the [API Documentation](https://documenter.getpostman.com/view/43614350/2sB2ixjZkQ).
-
----
-
-## Project Structure
-
-```plaintext
-pos-padi-django-backend/
-├── manage.py                     # Django command-line utility
-├── apps/                         # Django apps
-│   ├── common/                   # Shared utilities/models
-│   ├── agents/                   # Agents-related logic
-│   ├── companies/                # Company management
-│   ├── customers/                # Customer management
-│   ├── external_tables/          # External data integrations
-│   └── users/                    # User authentication & profiles
-│
-├── config/                       # Project configuration
-│   └── settings/                 # Django settings (split by environment)
-│       ├── base.py               # Base settings (shared)
-│       ├── test.py               # Test-specific settings
-│       ├── local.py              # Local development settings
-│       └── prod.py               # Production settings
-│
-...  
+```
+git checkout main
+git pull origin main
 ```
 
----
+- **Create your Feature Branch:**
+Choose a descriptive name.
 
-## Environment Variables
-
-Create a `.env` file in the root directory with the following keys:
-
-```bash
-DEFAULT_SECRET_KEY=your-secret-key
-DJANGO_SECRET_KEY=your_prod_secret-key
-DEBUG=True
-ALLOWED_HOSTS=127.0.0.1,localhost
-
-# MySQL
-DB_HOST=your_db_host
-DB_USER=your_db_user
-DB_PORT=your_db_port
-DB_PASSWORD=your_db_passsword
-DB_NAME=your_db_name
-DB_CA_CERT_PATH=your_db_CA_cert_path(if applicable)
-
-# Django SMTP
-EMAIL_HOST=your_email_host
-EMAIL_PORT=your_email_port
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your_email_host_user
-EMAIL_HOST_PASSWORD=your_email_password
-DEFAULT_FROM_EMAIL=your_defualt_sending_email
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost
+```
+git checkout -b feature/your-task-name
+# Examples:
+# git checkout -b feature/implement-virtual-card-creation
+# git checkout -b bugfix/fix-card-status-display
+# git checkout -b chore/update-bitnob-sdk
 ```
 
----
+- **1.3. Developing and Committing**
+As you work on your task:
 
-## Contributions
+i. Make your code changes.
 
-Contributions are welcome! If you’re interested:
+ii. Stage your changes:
 
-1. Create an issue or comment on the repository to let others know what you're working on to avoid overlapping efforts.
-2. Follow the steps outlined below to contribute.
+```
+git add . # Or git add <specific_file>
+```
 
-### Contribution Guidelines
+iii. Commit your changes:
+Write clear and concise commit messages.
 
-1. **Clone the repository:**
+```
+git commit -m "feat: Implement Bitnob virtual card creation endpoint"
+# Example: "fix: Correct virtual card status mapping"
+# Example: "chore: Update Django to latest patch version"
+```
 
-    ```bash
-    git clone https://github.com/InternPulse/pos-padi-django-backend.git
-    ```
+**Commit Message Best Practices:**
+- Start with a type (feat, fix, chore, docs, style, refactor, test, build, ci).
 
-2. **Set the origin branch:**
+- Followed by a colon and a space.
 
-    ```bash
-    git remote add origin https://github.com/InternPulse/pos-padi-django-backend.git
-    git pull origin dev
-    ```
+- Concise, imperative mood summary (e.g., "Add...", "Fix...", "Update...").
 
-3. **Create a new branch for your task:**
+- (Optional) Leave a blank line, then add a more detailed explanation.
 
-    ```bash
-    git checkout -b BA-001/Feat/Sign-Up-Form
-    ```
+iv. Push your branch to GitHub:
+The first time you push a new branch:
 
-4. **Make your changes and commit:**
+```
+git push -u origin feature/your-task-name
+```
 
-    ```bash
-    git add .
-    git commit -m "your commit message"
-    ```
+For subsequent pushes on the same branch:
 
-5. **Sync with the dev branch to avoid conflicts:**
+```
+git push
+```
 
-    ```bash
-    git pull origin dev
-    ```
+Push frequently! This serves as a backup and allows teammates to see your progress.
 
-6. **Push your branch:**
+- **1.4. Keeping Your Branch Updated with `main`**
+While you're working, others might merge their changes into `main`. To avoid large conflicts later, regularly pull `main` into your feature branch:
 
-    ```bash
-    git push -u origin BA-001/Feat/Sign-Up-Form
-    ```
+Ensure you are on your feature branch:
 
-7. **Create a pull request to the dev branch.** Ensure the PR description is clear and includes test instructions.
+```
+git checkout feature/your-task-name
+```
 
----
+Pull and merge `main` into your branch:
 
-## Commit Standards and Guidelines
+```
+git pull origin main
+```
 
-### Commit Cheat Sheet
+- Resolve any merge conflicts: Git will guide you through this. After resolving, `git add` the conflicted files and `git commit` the merge.
 
-| Type      | Description                                  |
-|-----------|----------------------------------------------|
-| `feat`    | Features: A new feature                     |
-| `fix`     | Bug Fixes: A bug fix                        |
-| `docs`    | Documentation: Documentation-only changes   |
-| `style`   | Styles: Formatting or cosmetic changes      |
-| `refactor`| Code Refactoring: Neither fixes a bug nor adds a feature |
-| `perf`    | Performance: Optimizes performance          |
-| `test`    | Tests: Adding or updating tests             |
-| `build`   | Builds: Changes to build tools or dependencies |
-| `ci`      | CI: Updates to CI configurations            |
-| `chore`   | Chores: Maintenance or configuration tasks  |
-| `revert`  | Reverts: Reverts a previous commit          |
+- `git push` your updated feature branch.
 
-### Sample Commit Messages
+- **1.5. Creating a Pull Request (PR)**
+When your feature/bug fix is complete, tested, and ready for review:
 
-- `chore: Update README file – Maintenance task.`
-- `feat: Add user registration endpoint – New feature added.`
+i. Ensure your branch is pushed and up-to-date.
 
----
+git push
 
-## License
+ii. Go to GitHub: Navigate to our repository. GitHub will usually prompt you to create a Pull Request for your recently pushed branch.
 
-This project is licensed under the MIT License.
+iii. Configure the PR:
+
+- Base branch: main (this is where your changes will eventually go).
+
+- Compare branch (head): Your feature branch (e.g., feature/implement-virtual-card-creation).
+
+iv. Write a Clear PR Description:
+
+Title: A concise summary of the PR's purpose.
+
+Description:
+
+What problem does this PR solve?
+
+What changes were made?
+
+How can reviewers test this functionality?
+
+Any known limitations or future considerations.
+
+Reference any related issues (e.g., "Closes #123", "Resolves #456").
+
+Assign Reviewers: Request reviews from your teammates.
+
+
+- **1.6. Code Review and Iteration**
+i. Reviewers provide feedback: Your teammates will review your code on GitHub, leaving comments and suggestions.
+
+ii. Address feedback: Make necessary changes in your local feature branch, commit them, and git push them. These new commits will automatically appear in the open PR.
+
+iii. Discuss: Use the PR comments for discussion and clarification.
+
+
+- **1.7. Merging and Cleaning Up**
+Once the PR is approved and all discussions are resolved:
+
+i. Merge the Pull Request: The designated team lead or an approved reviewer will merge the PR into the main branch on GitHub.
+
+ii. Delete the Feature Branch: After merging, GitHub usually offers a button to delete the feature branch. Do this to keep the repository clean.
+
+iii. Update your Local main and Delete Local Branch:
+
+```
+git checkout main
+git pull origin main # Get the newly merged changes
+git branch -d feature/your-task-name # Delete your local feature branch
+```
+
+(Use `git branch -D` if Git complains about unmerged changes, but try to avoid this by always merging main into your feature branch before the final PR merge).
