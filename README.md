@@ -1,8 +1,8 @@
 ## 1. Team Workflow: Branches and Pull Requests
 We follow a simplified "GitHub Flow" to manage our code changes.
 
-**1.1. The `main` Branch**
-The `main` branch represents the stable, production-ready code.
+**1.1. The `dev` Branch**
+The `dev` branch represents the stable, development code.
 
 Direct pushes to main are strictly forbidden. All changes must go through a Pull Request.
 
@@ -11,12 +11,12 @@ Always keep your local main branch updated.
 **1.2. Feature Branching**
 For every new task (feature, bug fix, improvement), you must create a new branch.
 
-- **Start from `main`:**
-Always ensure your local `main` is up-to-date before creating a new branch.
+- **Start from `dev`:**
+Always ensure your local `dev` is up-to-date before creating a new branch.
 
 ```
-git checkout main
-git pull origin main
+git checkout dev
+git pull origin dev
 ```
 
 - **Create your Feature Branch:**
@@ -74,8 +74,8 @@ git push
 
 Push frequently! This serves as a backup and allows teammates to see your progress.
 
-- **1.4. Keeping Your Branch Updated with `main`**
-While you're working, others might merge their changes into `main`. To avoid large conflicts later, regularly pull `main` into your feature branch:
+- **1.4. Keeping Your Branch Updated with `dev`**
+While you're working, others might merge their changes into `dev`. To avoid large conflicts later, regularly pull `dev` into your feature branch:
 
 Ensure you are on your feature branch:
 
@@ -83,10 +83,10 @@ Ensure you are on your feature branch:
 git checkout feature/your-task-name
 ```
 
-Pull and merge `main` into your branch:
+Pull and merge `dev` into your branch:
 
 ```
-git pull origin main
+git pull origin dev
 ```
 
 - Resolve any merge conflicts: Git will guide you through this. After resolving, `git add` the conflicted files and `git commit` the merge.
@@ -145,8 +145,8 @@ ii. Delete the Feature Branch: After merging, GitHub usually offers a button to 
 iii. Update your Local main and Delete Local Branch:
 
 ```
-git checkout main
-git pull origin main # Get the newly merged changes
+git checkout dev
+git pull origin dev # Get the newly merged changes
 git branch -d feature/your-task-name # Delete your local feature branch
 ```
 
