@@ -1,0 +1,12 @@
+# Python Bytecode Files
+*.pyc
+__pycache__/
+
+# Virtual environment directories
+venv/
+
+# Environment variables file
+.env
+
+# SQLite (for Django)
+db.sqlite3
