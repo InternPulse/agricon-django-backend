@@ -11,6 +11,11 @@ from .views import (
     OperatorProfileCreateUpdateView,
     EmailOTPVerifyView,
     LogoutView,
+    RequestPasswordResetView,
+    ConfirmPasswordResetView,
+    FarmerUpdateView,
+    OperatorUpdateView,
+    ResendOTPView,
 )
 
 urlpatterns = [
@@ -30,4 +35,21 @@ urlpatterns = [
 
     # Logout Endrpoint
     path('logout/', LogoutView.as_view(), name='logout'),
+    
+    # Password-reset Endpoint
+    path('password-reset/request/', RequestPasswordResetView.as_view()),
+    
+    #Endpoint for resending OTP 
+    path('password-reset/resend/', ResendOTPView.as_view()),
+    
+    # Endpoint for confirm password-reset
+    path('password-reset/confirm/', ConfirmPasswordResetView.as_view()),
+    
+    # Farmer update Endpoint
+    path('farmer/update/', FarmerUpdateView.as_view()),
+    
+    # Operator update Endpoint
+    path('operator/update/', OperatorUpdateView.as_view()),
+    
+    
 ]
