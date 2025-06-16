@@ -208,24 +208,24 @@ class LogoutView(APIView):
         
 
 # Request password reset (send OTP to email)
+# This handle sending an OTP to the user to reset their password.
 class RequestPasswordResetView(generics.GenericAPIView):
-    serializer_class = PasswordResetRequestSerializer
+    serializer_class = PasswordResetRequestSerializer       #Specifies the serializer that will validate incoming data
 
-    def post(self, request):
+    def post(self, request):                            # Defines the POST method to handle the request when the user wants to reset their password.
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-
+        serializer.is_valid(raise_exception=True)       #Checks if the data is valid.
+        email = serializer.validated_data['email']      #Extracts the validated email field from the serializer for further processing
         try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+            user = User.objects.get(email=email)    # This Tries to find a user in the database with the matching email.
+        except User.DoesNotExist:                   # If no such user exists, return a 404 response
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Generate OTP
         code = OTP.generate_otp()
-        OTP.objects.create(user=user, code=code)
+        OTP.objects.create(user=user, code=code)        # Saves the generated OTP to the OTP table, linked to the user
 
-        # Simulate sending OTP (real app: send email/SMS)
+        # This Simulate sending OTP (real app: send email/SMS)
         print(f"[DEBUG] OTP for {email} is {code}")
 
         return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
@@ -266,10 +266,10 @@ class ConfirmPasswordResetView(generics.GenericAPIView):
         return Response({"message": "Password has been reset successfully."}, status=200)
     
 # --- Farmer Profile Update ---
+# This is a view for authenticated farmers to update their profile info.
 class FarmerUpdateView(generics.UpdateAPIView):
-    serializer_class = FarmerUpdateSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = FarmerUpdateSerializer       # Uses a serializer that expects only the fields in the FarmerProfile model that can be updated.
+    permission_classes = [permissions.IsAuthenticated]      
     def get_object(self):
         return self.request.user.farmerprofile
 
