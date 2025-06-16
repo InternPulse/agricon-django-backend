@@ -8,19 +8,35 @@ from .models import User, FarmerProfile, OperatorProfile, OTP
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.exceptions import PermissionDenied, NotFound, AuthenticationFailed
 
 from .serializers import (
     UserRegistrationSerializer,
     FarmerProfileSerializer,
-    OperatorProfileSerializer
+    OperatorProfileSerializer,
+    EmailOTPVerifySerializer,
 )
+
+from rest_framework.views import APIView
+
 
 # ==========================================================
 
 # Customized TokenObtainPairSerializer to add user role to token payload
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.emailVerified:
+            raise AuthenticationFailed("Please verify your email before logging in.")
+
+        # Include extra claims in the token response
+        data['email'] = self.user.email
+        data['role'] = self.user.role
+        return data   
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -164,3 +180,22 @@ class OperatorProfileCreateUpdateView(mixins.CreateModelMixin, generics.Retrieve
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+    
+class EmailOTPVerifyView(APIView):
+    def post(self, request):
+        serializer = EmailOTPVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({"detail": "Email verified successfully."}, status=status.HTTP_200_OK)
+
+    
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"detail": "Logout successful."}, status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)

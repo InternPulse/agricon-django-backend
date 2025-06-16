@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction # for atomic operations
+from django.utils import timezone
 from .models import User, FarmerProfile, OperatorProfile, OTP
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
@@ -89,3 +90,35 @@ class UserRegistrationSerializer(serializers.Serializer):
         print(f"OTP for {user.email} is {otp_code}")
 
         return user
+    
+class EmailOTPVerifySerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(max_length=6)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        code = attrs.get("code")
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+
+        try:
+            otp = OTP.objects.filter(user=user, code=code, is_used=False).latest("created_at")
+        except OTP.DoesNotExist:
+            raise serializers.ValidationError("Invalid or expired OTP.")
+
+        if otp.is_expired():
+            raise serializers.ValidationError("OTP has expired.")
+
+        # Mark OTP as used
+        otp.is_used = True
+        otp.save()
+
+        # Mark user as verified
+        user.emailVerified = True
+        user.is_verified = True  # in case you use both
+        user.save()
+
+        return attrs
