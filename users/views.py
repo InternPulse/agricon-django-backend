@@ -1,10 +1,11 @@
 from django.shortcuts import render
 
-from rest_framework import generics, status, mixins
+from rest_framework import generics, status, mixins, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.utils import timezone
 
-from .models import User, FarmerProfile, OperatorProfile, OTP
+from .models import User, OTP, FarmerProfile, OperatorProfile, OTP
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -17,6 +18,10 @@ from .serializers import (
     FarmerProfileSerializer,
     OperatorProfileSerializer,
     EmailOTPVerifySerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
+    FarmerUpdateSerializer,
+    OperatorUpdateSerializer,
 )
 
 from rest_framework.views import APIView
@@ -199,3 +204,32 @@ class LogoutView(APIView):
             return Response({"detail": "Logout successful."}, status=status.HTTP_205_RESET_CONTENT)
         except Exception:
             return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+
+# Request password reset (send OTP to email)
+class RequestPasswordResetView(generics.GenericAPIView):
+    serializer_class = PasswordResetRequestSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Generate OTP
+        code = OTP.generate_otp()
+        OTP.objects.create(user=user, code=code)
+
+        # Simulate sending OTP (real app: send email/SMS)
+        print(f"[DEBUG] OTP for {email} is {code}")
+
+        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
+
+
+
+

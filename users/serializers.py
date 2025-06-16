@@ -122,3 +122,30 @@ class EmailOTPVerifySerializer(serializers.Serializer):
         user.save()
 
         return attrs
+    
+    
+# --- FORGOT PASSWORD VIA OTP ---
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(max_length=6)
+    new_password = serializers.CharField(write_only=True)
+
+
+# --- PROFILE UPDATES ---
+
+class FarmerUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FarmerProfile
+        fields = ['firstName', 'lastName', 'phone', 'address']
+        read_only_fields = ['user']
+
+
+class OperatorUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OperatorProfile
+        fields = ['firstName', 'lastName', 'phone', 'businessName', 'address']
+        read_only_fields = ['user']
