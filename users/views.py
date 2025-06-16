@@ -230,6 +230,38 @@ class RequestPasswordResetView(generics.GenericAPIView):
 
         return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
 
+# Confirm password reset using OTP
+class ConfirmPasswordResetView(generics.GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
 
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
+        email = serializer.validated_data['email']
+        code = serializer.validated_data['code']
+        new_password = serializer.validated_data['new_password']
 
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=404)
+
+        try:
+            otp = OTP.objects.filter(user=user, code=code, is_used=False).latest('created_at')
+        except OTP.DoesNotExist:
+            return Response({"error": "Invalid or expired OTP."}, status=400)
+
+        if otp.is_expired():
+            return Response({"error": "OTP has expired."}, status=400)
+
+        # Update password
+        user.set_password(new_password)
+        user.save()
+
+        # Mark OTP as used
+        otp.is_used = True
+        otp.save()
+
+        return Response({"message": "Password has been reset successfully."}, status=200)
+    
