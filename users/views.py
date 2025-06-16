@@ -22,6 +22,7 @@ from .serializers import (
     PasswordResetConfirmSerializer,
     FarmerUpdateSerializer,
     OperatorUpdateSerializer,
+
 )
 
 from rest_framework.views import APIView
@@ -211,6 +212,7 @@ class LogoutView(APIView):
 # This handle sending an OTP to the user to reset their password.
 class RequestPasswordResetView(generics.GenericAPIView):
     serializer_class = PasswordResetRequestSerializer       #Specifies the serializer that will validate incoming data
+    permission_classes = [AllowAny]
 
     def post(self, request):                            # Defines the POST method to handle the request when the user wants to reset their password.
         serializer = self.get_serializer(data=request.data)
@@ -230,9 +232,36 @@ class RequestPasswordResetView(generics.GenericAPIView):
 
         return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
 
+# This handles cases where the OTP has to be resent
+class ResendOTPView(generics.GenericAPIView):
+    serializer_class = PasswordResetRequestSerializer
+    permission_classes = [AllowAny]  # This is makes it public.
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=404)
+
+        # Optional: expire all previous OTPs
+        OTP.objects.filter(user=user).update(is_used=True)
+
+        # Generate and send new OTP
+        code = OTP.generate_otp()
+        OTP.objects.create(user=user, code=code)
+
+        print(f"[DEBUG] OTP resent to {email} is {code}")  # simulate email sending
+        return Response({"message": "OTP resent successfully."})
+
+
 # Confirm password reset using OTP
 class ConfirmPasswordResetView(generics.GenericAPIView):
     serializer_class = PasswordResetConfirmSerializer
+    permission_classes = [AllowAny] 
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
