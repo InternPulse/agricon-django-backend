@@ -265,3 +265,19 @@ class ConfirmPasswordResetView(generics.GenericAPIView):
 
         return Response({"message": "Password has been reset successfully."}, status=200)
     
+# --- Farmer Profile Update ---
+class FarmerUpdateView(generics.UpdateAPIView):
+    serializer_class = FarmerUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.farmerprofile
+
+
+# --- Operator Profile Update ---
+class OperatorUpdateView(generics.UpdateAPIView):
+    serializer_class = OperatorUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.operatorprofile
