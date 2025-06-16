@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
 
-from .models import User, OTP, FarmerProfile, OperatorProfile, OTP
+from .models import User, OTP, FarmerProfile, OperatorProfile
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -20,9 +20,6 @@ from .serializers import (
     EmailOTPVerifySerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
-    FarmerUpdateSerializer,
-    OperatorUpdateSerializer,
-
 )
 
 from rest_framework.views import APIView
@@ -212,11 +209,11 @@ class LogoutView(APIView):
 # This handle sending an OTP to the user to reset their password.
 class RequestPasswordResetView(generics.GenericAPIView):
     serializer_class = PasswordResetRequestSerializer       #Specifies the serializer that will validate incoming data
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]                #Allows any user to access this endpoint, even if they are not authenticated
 
-    def post(self, request):                            # Defines the POST method to handle the request when the user wants to reset their password.
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)       #Checks if the data is valid.
+        serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']      #Extracts the validated email field from the serializer for further processing
         try:
             user = User.objects.get(email=email)    # This Tries to find a user in the database with the matching email.
@@ -235,7 +232,7 @@ class RequestPasswordResetView(generics.GenericAPIView):
 # This handles cases where the OTP has to be resent
 class ResendOTPView(generics.GenericAPIView):
     serializer_class = PasswordResetRequestSerializer
-    permission_classes = [AllowAny]  # This is makes it public.
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -293,20 +290,3 @@ class ConfirmPasswordResetView(generics.GenericAPIView):
         otp.save()
 
         return Response({"message": "Password has been reset successfully."}, status=200)
-    
-# --- Farmer Profile Update ---
-# This is a view for authenticated farmers to update their profile info.
-class FarmerUpdateView(generics.UpdateAPIView):
-    serializer_class = FarmerUpdateSerializer       # Uses a serializer that expects only the fields in the FarmerProfile model that can be updated.
-    permission_classes = [permissions.IsAuthenticated]      
-    def get_object(self):
-        return self.request.user.farmerprofile
-
-
-# --- Operator Profile Update ---
-class OperatorUpdateView(generics.UpdateAPIView):
-    serializer_class = OperatorUpdateSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user.operatorprofile
