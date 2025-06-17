@@ -227,7 +227,7 @@ class RequestPasswordResetView(generics.GenericAPIView):
         # This Simulate sending OTP (real app: send email/SMS)
         print(f"[DEBUG] OTP for {email} is {code}")
 
-        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
+        return Response({"message": "OTP sent successfully.", "otp": code}, status=status.HTTP_200_OK)
 
 # This handles cases where the OTP has to be resent
 class ResendOTPView(generics.GenericAPIView):
@@ -252,8 +252,8 @@ class ResendOTPView(generics.GenericAPIView):
         OTP.objects.create(user=user, code=code)
 
         print(f"[DEBUG] OTP resent to {email} is {code}")  # simulate email sending
-        return Response({"message": "OTP resent successfully."})
 
+        return Response({"message": "OTP sent successfully.", "otp": code}, status=status.HTTP_200_OK)
 
 # Confirm password reset using OTP
 class ConfirmPasswordResetView(generics.GenericAPIView):
