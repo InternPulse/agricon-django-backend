@@ -53,9 +53,6 @@ class UserRegistrationSerializer(serializers.Serializer):
         }
     )
 
-    # Nested serializers for profiles
-    # farmer_profile = FarmerProfileSerializer(required=False, allow_null=True)
-    # operator_profile = OperatorProfileSerializer(required=False, allow_null=True)
 
     class Meta:
         fields = ['email', 'password', 'password2', 'role']
@@ -89,7 +86,7 @@ class UserRegistrationSerializer(serializers.Serializer):
         # Simulate sending OTP (real apps would send via SMS/email)
         print(f"OTP for {user.email} is {otp_code}")
 
-        return user
+        return user, otp_code
     
 class EmailOTPVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()

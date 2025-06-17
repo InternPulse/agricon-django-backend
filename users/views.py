@@ -60,7 +60,7 @@ class UserRegistrationView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save() # This calls the create method in UserRegistrationSerializer
+        user, otp_code = serializer.save()
 
         refresh = TokenObtainPairSerializer.get_token(user)
         access = refresh.access_token
@@ -71,7 +71,8 @@ class UserRegistrationView(generics.CreateAPIView):
                 "email": user.email,
                 "role": user.role,
                 "access": str(access),
-                "refresh": str(refresh)
+                "refresh": str(refresh),
+                "otp": otp_code
             },
             status=status.HTTP_201_CREATED
         )
