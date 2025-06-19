@@ -1,153 +1,222 @@
-## 1. Team Workflow: Branches and Pull Requests
-We follow a simplified "GitHub Flow" to manage our code changes.
+# Agricon Nigeria Django Backend API
 
-**1.1. The `dev` Branch**
-The `dev` branch represents the stable, development code.
+## Project Overview
 
-Direct pushes to main are strictly forbidden. All changes must go through a Pull Request.
+**Agricon Nigeria – A Shared Agricultural Infrastructure Platform**
 
-Always keep your local main branch updated.
+Agricon Nigeria is a mobile-first/web platform that connects farmers to shared agricultural infrastructure such as dryers, cold rooms, and processing plants. By leveraging AI, IoT, and USSD technology, it enables affordable access through cooperative bookings, real-time availability tracking, and market linkages, helping reduce post-harvest losses and boost profitability.
 
-**1.2. Feature Branching**
-For every new task (feature, bug fix, improvement), you must create a new branch.
+**Why It Matters:** Nigerian farmers, especially smallholders, experience up to 40% post-harvest losses due to lack of access to preservation and processing infrastructure. High operational costs, unreliable electricity, and fragmented value chains contribute to these losses. Agricon addresses these challenges by offering shared, technology-driven solutions.
 
-- **Start from `dev`:**
-Always ensure your local `dev` is up-to-date before creating a new branch.
+---
 
+## Live Link
+
+[<u>API Live Demo</u>](https://agricon-django-backend.onrender.com/).
+
+## Documentation Link
+
+Postman API Documentation [<u>here</u>](https://documenter.getpostman.com/view/45352371/2sB2x8GBwe#50a1921c-8553-462b-97ba-e2ed07c5bc37).
+
+---
+
+## Tech Stack
+
+- **Language:** Python 3.12
+- **Framework:** Django 5.2.3
+- **Auth:** djangorestframework\_simplejwt==5.5.0
+- **Environment Config:** django-environ==0.12.0
+- **Database:** PostgreSQL
+
+---
+
+## Installation Instructions
+
+### Prerequisites
+
+- Python >= 3.9
+- pip
+- Git
+- Virtual environment tool (e.g. `venv`)
+- PostgreSQL
+
+### Setup Locally
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/InternPulse/agricon-django-backend.git
+cd agricon-django-backend
 ```
+
+2. **Create a virtual environment and activate it**
+
+**Windows:**
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**macOS/Linux:**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. **Install dependencies**
+
+```bash
+pip install -r requirements.txt
+```
+
+4. **Add a `.env` file**
+
+
+```env
+DJANGO_SECRET_KEY=your_secret_key
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+5. **Run migrations**
+
+```bash
+python manage.py migrate
+```
+
+6. **Create superuser**
+
+```bash
+python manage.py createsuperuser
+```
+
+7. **Start the development server**
+
+```bash
+python manage.py runserver
+```
+
+API will be available at `http://127.0.0.1:8000/`
+
+---
+
+## Features Implemented
+
+- User Registration & Login
+- JWT Authentication (Access & Refresh Tokens)
+- User Logout
+- Email Verification
+- Password Reset and Update
+- Farmer Profile Management (CRUD)
+- Operator Profile Management (CRUD)
+
+---
+
+## API Endpoints
+
+**Base URL:** `/api/v1/`
+
+| Endpoint                       | Method | Description                        |
+| ------------------------------ | ------ | ---------------------------------- |
+| `auth/register/`               | POST   | Register a new user                |
+| `auth/verify-email-otp/`       | POST   | Verify email by sending OTP        |
+| `auth/otp/resend/`             | POST   | Resend OTP for verification        |
+| `auth/login/`                  | POST   | Login and obtain JWT tokens        |
+| `auth/profile/farmer/`         | POST   | Register a farmer profile          |
+| `auth/profile/operator/`       | POST   | Register an operator profile       |
+| `auth/profile/farmer/`         | GET    | Get farmer profile                 |
+| `auth/profile/operator/`       | GET    | Get operator profile               |
+| `auth/profile/farmer/`         | PUT    | Full update of farmer profile      |
+| `auth/profile/operator/`       | PUT    | Full update of operator profile    |
+| `auth/profile/farmer/`         | PATCH  | Partial update of farmer profile   |
+| `auth/profile/operator/`       | PATCH  | Partial update of operator profile |
+| `auth/password-reset/request/` | POST   | Reset a new password for user      |
+| `auth/password-reset/confirm/` | POST   | Confirm new password for user      |
+| `auth/logout/`                 | POST   | Logout and blacklist token         |
+
+---
+
+## Project Structure
+
+```plaintext
+agricon-backend/
+├── manage.py
+├── agricon_django/
+│   ├── asgi.py
+│   ├── manage.py
+│   ├── urls.py
+│   └── settings/
+├── users/
+│   ├── apps.py
+│   ├── models.py
+│   ├── serializers.py
+│   ├── urls.py
+│   └── views.py
+...
+```
+
+---
+
+## Contribution Guidelines
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/InternPulse/agricon-django-backend.git
+```
+
+2. Checkout the dev branch:
+
+```bash
 git checkout dev
-git pull origin dev
 ```
 
-- **Create your Feature Branch:**
-Choose a descriptive name.
+3. Create a new branch:
 
-```
-git checkout -b feature/your-task-name
-# Examples:
-# git checkout -b feature/implement-virtual-card-creation
-# git checkout -b bugfix/fix-card-status-display
-# git checkout -b chore/update-bitnob-sdk
+```bash
+git checkout -b FT-001/feat-user-authentication
 ```
 
-- **1.3. Developing and Committing**
-As you work on your task:
+4. Make your changes, commit and push:
 
-i. Make your code changes.
-
-ii. Stage your changes:
-
-```
-git add . # Or git add <specific_file>
+```bash
+git add .
+git commit -m "feat: implement user authentication"
+git push -u origin FT-001/feat-user-authentication
 ```
 
-iii. Commit your changes:
-Write clear and concise commit messages.
+5. Open a Pull Request to merge into `dev`
 
-```
-git commit -m "feat: Implement Bitnob virtual card creation endpoint"
-# Example: "fix: Correct virtual card status mapping"
-# Example: "chore: Update Django to latest patch version"
-```
+---
 
-**Commit Message Best Practices:**
-- Start with a type (feat, fix, chore, docs, style, refactor, test, build, ci).
+## Commit Message Format
 
-- Followed by a colon and a space.
+| Type     | Description                       |
+| -------- | --------------------------------- |
+| feat     | A new feature                     |
+| fix      | A bug fix                         |
+| docs     | Documentation changes             |
+| style    | Code formatting, no logic changes |
+| refactor | Refactor code                     |
+| test     | Add or update tests               |
+| chore    | Maintenance tasks                 |
 
-- Concise, imperative mood summary (e.g., "Add...", "Fix...", "Update...").
+**Examples:**
 
-- (Optional) Leave a blank line, then add a more detailed explanation.
+- `feat: add profile registration endpoints`
+- `fix: correct token refresh logic`
 
-iv. Push your branch to GitHub:
-The first time you push a new branch:
+---
 
-```
-git push -u origin feature/your-task-name
-```
+## License
 
-For subsequent pushes on the same branch:
+This project is licensed under the MIT License.
 
-```
-git push
-```
-
-Push frequently! This serves as a backup and allows teammates to see your progress.
-
-- **1.4. Keeping Your Branch Updated with `dev`**
-While you're working, others might merge their changes into `dev`. To avoid large conflicts later, regularly pull `dev` into your feature branch:
-
-Ensure you are on your feature branch:
-
-```
-git checkout feature/your-task-name
-```
-
-Pull and merge `dev` into your branch:
-
-```
-git pull origin dev
-```
-
-- Resolve any merge conflicts: Git will guide you through this. After resolving, `git add` the conflicted files and `git commit` the merge.
-
-- `git push` your updated feature branch.
-
-- **1.5. Creating a Pull Request (PR)**
-When your feature/bug fix is complete, tested, and ready for review:
-
-i. Ensure your branch is pushed and up-to-date.
-
-git push
-
-ii. Go to GitHub: Navigate to our repository. GitHub will usually prompt you to create a Pull Request for your recently pushed branch.
-
-iii. Configure the PR:
-
-- Base branch: main (this is where your changes will eventually go).
-
-- Compare branch (head): Your feature branch (e.g., feature/implement-virtual-card-creation).
-
-iv. Write a Clear PR Description:
-
-Title: A concise summary of the PR's purpose.
-
-Description:
-
-What problem does this PR solve?
-
-What changes were made?
-
-How can reviewers test this functionality?
-
-Any known limitations or future considerations.
-
-Reference any related issues (e.g., "Closes #123", "Resolves #456").
-
-Assign Reviewers: Request reviews from your teammates.
-
-
-- **1.6. Code Review and Iteration**
-i. Reviewers provide feedback: Your teammates will review your code on GitHub, leaving comments and suggestions.
-
-ii. Address feedback: Make necessary changes in your local feature branch, commit them, and git push them. These new commits will automatically appear in the open PR.
-
-iii. Discuss: Use the PR comments for discussion and clarification.
-
-
-- **1.7. Merging and Cleaning Up**
-Once the PR is approved and all discussions are resolved:
-
-i. Merge the Pull Request: The designated team lead or an approved reviewer will merge the PR into the main branch on GitHub.
-
-ii. Delete the Feature Branch: After merging, GitHub usually offers a button to delete the feature branch. Do this to keep the repository clean.
-
-iii. Update your Local main and Delete Local Branch:
-
-```
-git checkout dev
-git pull origin dev # Get the newly merged changes
-git branch -d feature/your-task-name # Delete your local feature branch
-```
-
-(Use `git branch -D` if Git complains about unmerged changes, but try to avoid this by always merging main into your feature branch before the final PR merge).
