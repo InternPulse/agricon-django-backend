@@ -149,14 +149,14 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
    
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=600),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": env('SECRET_KEY'), # This will use the SECRET_KEY from the main Django settings
+    "SIGNING_KEY": env('SECRET_KEY'),
     "VERIFYING_KEY": None,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",

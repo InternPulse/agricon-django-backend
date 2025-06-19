@@ -6,13 +6,13 @@ from .models import User, FarmerProfile, OperatorProfile, OTP
 class FarmerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FarmerProfile
-        fields = ['firstName', 'lastName', 'phone', 'address']
+        fields = ['id', 'firstName', 'lastName', 'phone', 'address']
         read_only_fields = ['user']
 
 class OperatorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = OperatorProfile
-        fields = ['firstName', 'lastName', 'phone', 'businessName', 'address']
+        fields = ['id', 'firstName', 'lastName', 'phone', 'businessName', 'address']
         read_only_fields = ['user']
 
 class UserRegistrationSerializer(serializers.Serializer):

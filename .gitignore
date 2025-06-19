@@ -10,3 +10,6 @@ venv/
 
 # SQLite (for Django)
 db.sqlite3
+
+main.py
+ssl/
