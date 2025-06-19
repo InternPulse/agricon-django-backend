@@ -4,6 +4,7 @@ import environ
 from datetime import timedelta
 import dj_database_url
 from decouple import config
+from corsheaders.defaults import default_headers
 
 # Initialize environment variables
 env = environ.Env(
@@ -62,6 +63,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
 ]
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'Authorization',
+]
+
 ROOT_URLCONF = 'agricon_django.urls'
 
 TEMPLATES = [
