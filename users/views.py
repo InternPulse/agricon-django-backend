@@ -25,13 +25,7 @@ from .serializers import (
 from rest_framework.views import APIView
 
 from utils.email import send_otp_email
-from .throttles import (
-    OTPRequestAnonThrottle,
-    OTPRequestUserThrottle,
-    LoginAttemptAnonThrottle,
-    OTPVerifyAnonThrottle,
-    SignupAnonThrottle
-)
+
 
 # ==========================================================
 
