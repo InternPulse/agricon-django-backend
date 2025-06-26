@@ -26,32 +26,6 @@ from rest_framework.views import APIView
 
 from utils.email import send_otp_email
 
-
-# ==========================================================
-
-# Customized TokenObtainPairSerializer to add user role to token payload
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-
-        if not self.user.emailVerified:
-            raise AuthenticationFailed("Please verify your email before logging in.")
-
-        # Include extra claims in the token response
-        data['email'] = self.user.email
-        data['role'] = self.user.role
-        return data   
-
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token['email'] = user.email
-        token['role'] = user.role
-
-        return token
-
 # ===========================================================
 
 class UserRegistrationView(generics.CreateAPIView):
