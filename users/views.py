@@ -24,14 +24,6 @@ from .serializers import (
 
 from rest_framework.views import APIView
 
-from .throttles import (
-    OTPRequestAnonThrottle,
-    OTPRequestUserThrottle,
-    LoginAttemptAnonThrottle,
-    OTPVerifyAnonThrottle,
-    SignupAnonThrottle
-)
-
 # ===========================================================
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -224,9 +216,9 @@ class RequestPasswordResetView(generics.GenericAPIView):
         OTP.objects.create(user=user, code=code)        # Saves the generated OTP to the OTP table, linked to the user
 
         # This Simulate sending OTP (real app: send email/SMS)
-        print(f"[DEBUG] OTP for {email} is {code}")
+        send_otp_email(email, code)
 
-        return Response({"message": "OTP sent successfully.", "otp": code}, status=status.HTTP_200_OK)
+        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
 
 # This handles cases where the OTP has to be resent
 class ResendOTPView(generics.GenericAPIView):
@@ -251,9 +243,9 @@ class ResendOTPView(generics.GenericAPIView):
         code = OTP.generate_otp()
         OTP.objects.create(user=user, code=code)
 
-        print(f"[DEBUG] OTP resent to {email} is {code}")  # simulate email sending
+        send_otp_email(email, code)  # simulate email sending
 
-        return Response({"message": "OTP sent successfully.", "otp": code}, status=status.HTTP_200_OK)
+        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
 
 # Confirm password reset using OTP
 class ConfirmPasswordResetView(generics.GenericAPIView):
