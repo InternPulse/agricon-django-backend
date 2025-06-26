@@ -8,7 +8,6 @@ from django.utils import timezone
 from .models import User, OTP, FarmerProfile, OperatorProfile
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.exceptions import PermissionDenied, NotFound, AuthenticationFailed
@@ -20,35 +19,18 @@ from .serializers import (
     EmailOTPVerifySerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
+    CustomTokenObtainPairSerializer
 )
 
 from rest_framework.views import APIView
 
-
-# ==========================================================
-
-# Customized TokenObtainPairSerializer to add user role to token payload
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-
-        if not self.user.emailVerified:
-            raise AuthenticationFailed("Please verify your email before logging in.")
-
-        # Include extra claims in the token response
-        data['email'] = self.user.email
-        data['role'] = self.user.role
-        return data   
-
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token['email'] = user.email
-        token['role'] = user.role
-
-        return token
+from .throttles import (
+    OTPRequestAnonThrottle,
+    OTPRequestUserThrottle,
+    LoginAttemptAnonThrottle,
+    OTPVerifyAnonThrottle,
+    SignupAnonThrottle
+)
 
 # ===========================================================
 
@@ -56,13 +38,14 @@ class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [SignupAnonThrottle]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user, otp_code = serializer.save()
 
-        refresh = TokenObtainPairSerializer.get_token(user)
+        refresh = CustomTokenObtainPairSerializer.get_token(user)
         access = refresh.access_token
 
         return Response(
@@ -76,10 +59,21 @@ class UserRegistrationView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED
         )
+
+# ===========================================================
+
+class LoginViewWithThrottling(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [AllowAny]
+
+    throttle_classes = [LoginAttemptAnonThrottle] 
+
+# ===========================================================
+
 class FarmerProfileCreateUpdateView(mixins.CreateModelMixin, generics.RetrieveUpdateAPIView):
     queryset = FarmerProfile.objects.all()
     serializer_class = FarmerProfileSerializer
-    permission_classes = [IsAuthenticated] # User must be logged in
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         # Tries to retrieve the profile for the authenticated user.
@@ -144,7 +138,7 @@ class FarmerProfileCreateUpdateView(mixins.CreateModelMixin, generics.RetrieveUp
 class OperatorProfileCreateUpdateView(mixins.CreateModelMixin, generics.RetrieveUpdateAPIView):
     queryset = OperatorProfile.objects.all()
     serializer_class = OperatorProfileSerializer
-    permission_classes = [IsAuthenticated] # User must be logged in
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         try:
@@ -187,6 +181,8 @@ class OperatorProfileCreateUpdateView(mixins.CreateModelMixin, generics.Retrieve
     
 class EmailOTPVerifyView(APIView):
     def post(self, request):
+        permission_classes = [AllowAny]
+        throttle_classes = [OTPVerifyAnonThrottle]
         serializer = EmailOTPVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({"detail": "Email verified successfully."}, status=status.HTTP_200_OK)
@@ -194,6 +190,7 @@ class EmailOTPVerifyView(APIView):
     
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = []
 
     def post(self, request):
         try:
@@ -211,6 +208,7 @@ class LogoutView(APIView):
 class RequestPasswordResetView(generics.GenericAPIView):
     serializer_class = PasswordResetRequestSerializer       #Specifies the serializer that will validate incoming data
     permission_classes = [AllowAny]                #Allows any user to access this endpoint, even if they are not authenticated
+    throttle_classes = [OTPRequestAnonThrottle, OTPRequestUserThrottle]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -234,6 +232,7 @@ class RequestPasswordResetView(generics.GenericAPIView):
 class ResendOTPView(generics.GenericAPIView):
     serializer_class = PasswordResetRequestSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [OTPRequestAnonThrottle, OTPRequestUserThrottle]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -260,6 +259,7 @@ class ResendOTPView(generics.GenericAPIView):
 class ConfirmPasswordResetView(generics.GenericAPIView):
     serializer_class = PasswordResetConfirmSerializer
     permission_classes = [AllowAny] 
+    throttle_classes = [OTPVerifyAnonThrottle]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
