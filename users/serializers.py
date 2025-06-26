@@ -2,6 +2,8 @@ from rest_framework import serializers
 from django.db import transaction # for atomic operations
 from django.utils import timezone
 from .models import User, FarmerProfile, OperatorProfile, OTP
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,6 +90,32 @@ class UserRegistrationSerializer(serializers.Serializer):
 
         return user, otp_code
     
+
+# =====================================
+# Customized TokenObtainPairSerializer to add user role to token payload
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.emailVerified:
+            raise AuthenticationFailed("Please verify your email before logging in.")
+
+        # Include extra claims in the token response
+        data['email'] = self.user.email
+        data['role'] = self.user.role
+        return data   
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['email'] = user.email
+        token['role'] = user.role
+
+        return token
+
+# =====================================    
 class EmailOTPVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)

@@ -99,7 +99,7 @@ class FarmerProfile(models.Model):
     firstName = models.CharField(max_length=100)
     lastName = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, unique=True, db_index=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=255)
 
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
@@ -115,7 +115,7 @@ class OperatorProfile(models.Model):
     lastName = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, unique=True, db_index=True) 
     businessName = models.CharField(max_length=255, blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=255)
 
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
