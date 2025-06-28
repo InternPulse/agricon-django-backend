@@ -19,7 +19,8 @@ from .serializers import (
     EmailOTPVerifySerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
-    CustomTokenObtainPairSerializer
+    CustomTokenObtainPairSerializer,
+    ChangePasswordSerializer
 )
 
 from rest_framework.views import APIView
@@ -32,6 +33,9 @@ from .throttles import (
     OTPVerifyAnonThrottle,
     SignupAnonThrottle
 )
+
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext as _
 
 # ===========================================================
 
@@ -292,3 +296,27 @@ class ConfirmPasswordResetView(generics.GenericAPIView):
         otp.save()
 
         return Response({"message": "Password has been reset successfully."}, status=200)
+
+# ===========================================================
+User = get_user_model()
+
+class ChangePasswordView(generics.UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+    model = User
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            self.object.set_password(serializer.validated_data['new_password1'])
+            self.object.save()
+            return Response(
+                {"detail": _("Password updated successfully.")},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

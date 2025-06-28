@@ -13,6 +13,7 @@ from .views import (
     RequestPasswordResetView,
     ConfirmPasswordResetView,
     ResendOTPView,
+    ChangePasswordView
 )
 
 urlpatterns = [
@@ -29,6 +30,9 @@ urlpatterns = [
     # Profile Endpoints
     path('profile/farmer/', FarmerProfileCreateUpdateView.as_view(), name='farmer_profile'),
     path('profile/operator/', OperatorProfileCreateUpdateView.as_view(), name='operator_profile'),
+
+    # Change Password Endpoint
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
 
     # Logout Endpoint
     path('logout/', LogoutView.as_view(), name='logout'),
