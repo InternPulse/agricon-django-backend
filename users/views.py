@@ -49,9 +49,13 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user, otp_code = serializer.save()
+        email = user.email
+        code = otp_code
 
         refresh = CustomTokenObtainPairSerializer.get_token(user)
         access = refresh.access_token
+
+        send_otp_email(email, code)
 
         return Response(
             {
@@ -60,11 +64,9 @@ class UserRegistrationView(generics.CreateAPIView):
                 "role": user.role,
                 "access": str(access),
                 "refresh": str(refresh),
-                "otp": otp_code
             },
             status=status.HTTP_201_CREATED
         )
-
 # ===========================================================
 
 class LoginViewWithThrottling(TokenObtainPairView):
@@ -256,7 +258,7 @@ class ResendOTPView(generics.GenericAPIView):
         code = OTP.generate_otp()
         OTP.objects.create(user=user, code=code)
 
-        send_otp_email(email, code)  # simulate email sending
+        send_otp_email(email, code) # simulate email sending
 
         return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
 
