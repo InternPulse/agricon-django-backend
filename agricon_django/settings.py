@@ -147,6 +147,9 @@ CACHES = {
         "LOCATION": os.environ.get("REDIS_URL"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 100 # Good for production
+            }
         },
         "KEY_PREFIX": "agricon_cache"
     }
@@ -184,7 +187,7 @@ REST_FRAMEWORK = {
         'otp_anon_request': '3/minute',  # Max 3/min/ip
         'otp_user_request': '5/minute',  # Max 5 OTP requests/min (for resend)
         'login_anon_attempt': '5/minute', # Max 5 attempts/min/ip
-        'otp_verify_anon': '10/minute',  # Max 10 OTP verification/min/ip
+        'otp_verify_anon': '5/minute',  # Max 5 OTP verification/min/ip
         'signup_anon_request': '5/hour',  # Max 5 signups/hour/ip
     },
 }

@@ -187,9 +187,10 @@ class OperatorProfileCreateUpdateView(mixins.CreateModelMixin, generics.Retrieve
         return Response(serializer.data)
     
 class EmailOTPVerifyView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [OTPVerifyAnonThrottle]
+
     def post(self, request):
-        permission_classes = [AllowAny]
-        throttle_classes = [OTPVerifyAnonThrottle]
         serializer = EmailOTPVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({"detail": "Email verified successfully."}, status=status.HTTP_200_OK)
