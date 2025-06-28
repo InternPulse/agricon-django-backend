@@ -2,6 +2,12 @@ from rest_framework import serializers
 from django.db import transaction # for atomic operations
 from django.utils import timezone
 from .models import User, FarmerProfile, OperatorProfile, OTP
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
+
+from django.contrib.auth import password_validation, authenticate
+from django.utils.translation import gettext_lazy as _
+
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,6 +94,32 @@ class UserRegistrationSerializer(serializers.Serializer):
 
         return user, otp_code
     
+
+# =====================================
+# Customized TokenObtainPairSerializer to add user role to token payload
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if not self.user.emailVerified:
+            raise AuthenticationFailed("Please verify your email before logging in.")
+
+        # Include extra claims in the token response
+        data['email'] = self.user.email
+        data['role'] = self.user.role
+        return data   
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['email'] = user.email
+        token['role'] = user.role
+
+        return token
+
+# =====================================    
 class EmailOTPVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
@@ -130,3 +162,25 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
     new_password = serializers.CharField(write_only=True)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password1 = serializers.CharField(required=True)
+    new_password2 = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password1'] != data['new_password2']:
+            raise serializers.ValidationError({"new_password2": _("The two new passwords do not match.")})
+
+        try:
+            password_validation.validate_password(data['new_password1'], self.context['request'].user)
+        except serializers.ValidationError as e:
+            raise serializers.ValidationError({"new_password1": list(e.messages)})
+
+        return data
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError(_("Your old password was entered incorrectly. Please enter it again."))
+        return value

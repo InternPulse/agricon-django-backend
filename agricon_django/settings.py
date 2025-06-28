@@ -97,6 +97,7 @@ DATABASES = {
     "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
 }
 
+# SENDGRID API CONFIGURATION
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -140,6 +141,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 100 # Good for production
+            }
+        },
+        "KEY_PREFIX": "agricon_cache"
+    }
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -149,13 +164,32 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer', # Optional: enable for browsable API in dev
+        'rest_framework.renderers.BrowsableAPIRenderer', # Optional: enabled for browsable API in dev
     ),
+
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
-    )
+    ),
+
+    'DEFAULT_THROTTLE_CLASSES': [
+         'rest_framework.throttling.AnonRateThrottle',
+         'rest_framework.throttling.UserRateThrottle',
+         ],
+    
+     'DEFAULT_THROTTLE_RATES': {
+        # Default rates for global DEFAULT_THROTTLE_CLASSES:
+        'anon': '100/day',
+        'user': '1000/day',
+
+        # Specific rates for OTP and Login endpoints:
+        'otp_anon_request': '3/minute',  # Max 3/min/ip
+        'otp_user_request': '5/minute',  # Max 5 OTP requests/min (for resend)
+        'login_anon_attempt': '5/minute', # Max 5 attempts/min/ip
+        'otp_verify_anon': '5/minute',  # Max 5 OTP verification/min/ip
+        'signup_anon_request': '5/hour',  # Max 5 signups/hour/ip
+    },
 }
 
 
