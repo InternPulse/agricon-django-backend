@@ -16,7 +16,7 @@ Agricon Nigeria is a mobile-first/web platform that connects farmers to shared a
 
 ## Documentation Link
 
-Postman API Documentation [<u>here</u>](https://documenter.getpostman.com/view/45352371/2sB2x8GBwe#50a1921c-8553-462b-97ba-e2ed07c5bc37).
+Postman API Documentation [<u>here</u>](https://documenter.getpostman.com/view/45352371/2sB2x8GBwe).
 
 ---
 
