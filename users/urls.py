@@ -13,7 +13,9 @@ from .views import (
     RequestPasswordResetView,
     ConfirmPasswordResetView,
     ResendOTPView,
-    ChangePasswordView
+    ChangePasswordView,
+    PasswordResetRequestView,
+    ContactUsView
 )
 
 urlpatterns = [
@@ -45,4 +47,10 @@ urlpatterns = [
     
     # Endpoint for confirm password-reset
     path('password-reset/confirm/', ConfirmPasswordResetView.as_view()),
+
+    # Endpoint for forgot password and confirm new password
+    path('forgot-password/', PasswordResetRequestView.as_view(), name='forgot_password'),
+
+    # Endpoint for contact us
+    path('contact-us/', ContactUsView.as_view(), name='contact_us'),
 ]
