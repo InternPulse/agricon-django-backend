@@ -309,7 +309,7 @@ User = get_user_model()
 class ChangePasswordView(generics.UpdateAPIView):
     serializer_class = ChangePasswordSerializer
     model = User
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, queryset=None):
         return self.request.user
@@ -329,6 +329,8 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 
 class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -342,7 +344,7 @@ class PasswordResetRequestView(APIView):
         otp_code = OTP.generate_otp()
         OTP.objects.create(user=user, code=otp_code)
 
-        html_message = render_to_string("emails/contact_us_email.html", {"otp_code": otp_code, "user.email": user})
+        html_message = render_to_string("emails/forgot_password_email.html", {"otp_code": otp_code, "user.email": user})
         plain_message = strip_tags(html_message)
 
         send_email(
