@@ -188,3 +188,14 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise serializers.ValidationError(_("Your old password was entered incorrectly. Please enter it again."))
         return value
+    
+class ContactUsSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    email = serializers.EmailField()
+    subject = serializers.CharField(max_length=150)
+    message = serializers.CharField()
+
+    def validate_message(self, value):
+        if len(value.strip()) < 10:
+            raise serializers.ValidationError("Message is too short.")
+        return value

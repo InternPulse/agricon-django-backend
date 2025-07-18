@@ -4,6 +4,8 @@ from rest_framework import generics, status, mixins, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.utils import timezone
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from .models import User, OTP, FarmerProfile, OperatorProfile
 
@@ -20,12 +22,13 @@ from .serializers import (
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
     CustomTokenObtainPairSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    ContactUsSerializer
 )
 
 from rest_framework.views import APIView
 
-from utils.email import send_otp_email
+from utils.email import send_otp_email, send_email, send_contact_us_email
 from .throttles import (
     OTPRequestAnonThrottle,
     OTPRequestUserThrottle,
@@ -323,3 +326,47 @@ class ChangePasswordView(generics.UpdateAPIView):
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetRequestView(APIView):
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        otp_code = OTP.generate_otp()
+        OTP.objects.create(user=user, code=otp_code)
+
+        html_message = render_to_string("emails/contact_us_email.html", {"otp_code": otp_code, "user.email": user})
+        plain_message = strip_tags(html_message)
+
+        send_email(
+            to_email=user.email,
+            subject="Reset Your AgriCon Password",
+            plain_text=plain_message,
+            html_content=html_message
+        )
+
+        return Response({"detail": "OTP sent to your email."}, status=status.HTTP_200_OK)
+    
+class ContactUsView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ContactUsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
+        send_contact_us_email(
+            name=data['name'],
+            email=data['email'],
+            subject=data['subject'],
+            message=data['message']
+        )
+
+        return Response({"message": "Your message has been sent successfully."}, status=status.HTTP_200_OK)

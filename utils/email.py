@@ -83,7 +83,7 @@ def send_welcome_email(to_email: str):
     "Thanks for signing up. We're here to help you and your team. If you have any questions, contact us at hello@agricon.com.\n\n"
     "Open Agricon: https://agricon.com.ng\n"
     )
-    html_content = """
+    html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -184,3 +184,44 @@ def send_welcome_email(to_email: str):
         # Optional: log or handle response.status_code if needed
     except Exception as e:
         print(f"Error sending welcome email: {e}")
+
+
+def send_email(to_email, subject, plain_text, html_content):
+    message = Mail(
+        from_email='agriconteam@gmail.com',
+        to_emails=to_email,
+        subject=subject,
+        plain_text_content=plain_text,
+        html_content=html_content
+    )
+
+    try:
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        sg.send(message)
+    except Exception as e:
+        print("Error sending email:", e)
+
+
+def send_contact_us_email(name, email, subject, message):
+    support_email = "agriconteam@aol.com"  # Replace with your support inbox
+    full_message = f"""
+    Name: {name}
+    Email: {email}
+    Subject: {subject}
+    
+    Message:
+    {message}
+    """
+
+    mail = Mail(
+        from_email='agriconteam@gmail.com',
+        to_emails=support_email,
+        subject=f"Contact Us: {subject}",
+        plain_text_content=full_message
+    )
+
+    try:
+        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+        sg.send(mail)
+    except Exception as e:
+        print(f"SendGrid error: {e}")
