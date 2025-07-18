@@ -8,6 +8,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import password_validation, authenticate
 from django.utils.translation import gettext_lazy as _
 
+from utils.email import send_welcome_email
+
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -91,6 +93,8 @@ class UserRegistrationSerializer(serializers.Serializer):
         
         # Simulate sending OTP (real apps would send via SMS/email)
         print(f"OTP for {user.email} is {otp_code}")
+
+        send_welcome_email(user.email)
 
         return user, otp_code
     
